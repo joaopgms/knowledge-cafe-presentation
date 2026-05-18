@@ -1,0 +1,20 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Office temp/lock files
+~$*.docx
+~$*.pptx
+~$*.xlsx
+.~lock.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OneDrive sync metadata (just in case)
+.tmp.driveupload/

@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Knowledge Café — Joana Contente · João Pedro Sousa · May 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   THEME TOKENS
+   ============================================================ */
+:root{
+  /* === PRODUCT LEAGUE BRAND PALETTE === */
+  --pl-blue:#0EACDF;          /* Blue Beetle */
+  --pl-blue-mid:#3778D9;      /* Superman-Blue */
+  --pl-purple:#8419CF;        /* Blue Falcon */
+  --pl-magenta:#A41D8C;       /* Shrinking Violet */
+  --pl-purple-deep:#391A5A;   /* Purple Priestess */
+  --pl-grey-dark:#48484F;     /* Grey Goblin */
+  --pl-black:#0E0E10;         /* Black Panther */
+  --pl-white:#FAFAFA;         /* White Willow */
+  --pl-grey:#737373;          /* Lady Grey */
+  --pl-grey-light:#D2D2D2;    /* Silver Surfer */
+  --pl-gradient:linear-gradient(135deg,#0EACDF 0%,#3778D9 35%,#8419CF 70%,#A41D8C 100%);
+  /* legacy aliases (kept for any existing references) */
+  --purple:#8419CF;
+  --purple-light:#A78BFA;
+  --purple-soft:#E9D5FF;
+  --orange:#F59E0B;
+  --teal:#0D9488;
+  --pink:#A41D8C;
+  --cyan:#0EACDF;
+  --green:#22C55E;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+/* DARK THEME (default) */
+:root[data-theme="dark"]{
+  --bg:#0a0a0f;
+  --bg-soft:#111827;
+  --surface:rgba(255,255,255,0.04);
+  --surface-hi:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.07);
+  --text:#FFFFFF;
+  --text-soft:#E5E7EB;
+  --text-muted:#9CA3AF;
+  --stripe-grad:linear-gradient(180deg,var(--purple),var(--purple-light));
+  --atmos-1:rgba(124,58,237,0.12);
+  --atmos-2:rgba(13,148,136,0.08);
+  --atmos-3:rgba(236,72,153,0.05);
+  --light-card-bg:#F3F4F6;
+  --light-card-text:#111827;
+  --light-card-muted:#6B7280;
+  --light-card-border:rgba(0,0,0,0.06);
+  --grain-opacity:0.025;
+}
+/* LIGHT THEME (Product League brand) */
+:root[data-theme="light"]{
+  --bg:var(--pl-white);
+  --bg-soft:#F2F2F2;
+  --surface:rgba(14,14,16,0.03);
+  --surface-hi:rgba(14,14,16,0.06);
+  --border:rgba(14,14,16,0.08);
+  --text:var(--pl-black);
+  --text-soft:var(--pl-grey-dark);
+  --text-muted:var(--pl-grey);
+  --stripe-grad:var(--pl-gradient);
+  --atmos-1:rgba(14,172,223,0.06);
+  --atmos-2:rgba(132,25,207,0.04);
+  --atmos-3:rgba(164,29,140,0.03);
+  --light-card-bg:#FFFFFF;
+  --light-card-text:var(--pl-black);
+  --light-card-muted:var(--pl-grey);
+  --light-card-border:rgba(14,14,16,0.08);
+  --grain-opacity:0.012;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Poppins',-apple-system,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  transition:background 400ms ease,color 400ms ease;
+}
+/* ============================================================
+   ATMOSPHERE
+   ============================================================ */
+.atmos{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1200px circle at 18% 28%, var(--atmos-1), transparent 55%),
+    radial-gradient(1000px circle at 82% 75%, var(--atmos-2), transparent 55%),
+    radial-gradient(700px circle at 60% 10%, var(--atmos-3), transparent 50%);
+  transition:opacity 400ms ease;
+}
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  opacity:var(--grain-opacity);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+/* ============================================================
+   DECK + SLIDES
+   ============================================================ */
+.deck{position:relative;width:100vw;height:100vh;z-index:2}
+.slide{
+  position:absolute;inset:0;
+  padding:8vh 8vw 10vh;
+  display:flex;flex-direction:column;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity 500ms ease,transform 700ms cubic-bezier(.22,1,.36,1);
+  transform:translateY(24px);
+  overflow:auto;
+}
+.slide.active{opacity:1;pointer-events:auto;transform:translateY(0)}
+.slide.prev{transform:translateY(-24px)}
+
+/* purple stripe + accent dots */
+.stripe{
+  position:absolute;top:0;bottom:0;left:0;width:14px;
+  background:var(--stripe-grad);
+}
+.dots{position:absolute;top:32px;right:50px;display:flex;gap:10px;z-index:3}
+.dots i{display:inline-block;width:14px;height:14px;border-radius:50%}
+.dots i:nth-child(1){background:var(--purple)}
+.dots i:nth-child(2){background:var(--purple-light)}
+.dots i:nth-child(3){background:var(--teal)}
+
+/* typography */
+.kicker{
+  text-transform:lowercase;letter-spacing:0.35em;
+  font-size:clamp(.75rem,1vw,.95rem);font-weight:400;
+  color:var(--orange);margin-bottom:32px;
+  opacity:0;transform:translateY(-8px);
+  transition:opacity .5s ease .15s,transform .5s ease .15s;
+}
+.kicker.teal{color:var(--teal)}
+.kicker.purple{color:var(--purple)}
+.kicker.pink{color:var(--pink)}
+.slide.active .kicker{opacity:1;transform:translateY(0)}
+h1{
+  font-size:clamp(2.5rem,6.5vw,6rem);
+  font-weight:700;line-height:1.02;letter-spacing:-0.015em;
+  margin-bottom:24px;color:var(--text);
+}
+h1.smaller{font-size:clamp(2rem,5vw,4.5rem)}
+.subtitle{
+  font-size:clamp(1.1rem,1.8vw,1.8rem);
+  font-style:italic;color:var(--purple-light);
+  margin-bottom:32px;line-height:1.4;
+}
+.body{
+  font-size:clamp(1rem,1.25vw,1.25rem);
+  line-height:1.7;color:var(--text-soft);max-width:62ch;
+}
+.attrib{
+  position:absolute;bottom:60px;left:8vw;
+  font-size:.9rem;color:var(--text-muted);letter-spacing:.02em;
+}
+.caption-bottom{
+  margin-top:28px;font-style:italic;color:var(--text-muted);font-size:1rem;
+}
+
+/* ============================================================
+   SHARED CARD/GRID PATTERNS
+   ============================================================ */
+.card-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px;max-width:1400px}
+.card-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:28px;max-width:1400px}
+.card-grid-4{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px;max-width:1300px}
+
+.info-card{
+  padding:24px 28px;
+  background:var(--light-card-bg);color:var(--light-card-text);
+  border:1px solid var(--light-card-border);
+  border-radius:14px;
+  border-top:3px solid var(--c,var(--purple));
+  opacity:0;transform:translateY(12px);
+  transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1);
+}
+.slide.active .info-card{opacity:1;transform:translateY(0)}
+.slide.active .info-card:nth-child(1){transition-delay:.15s}
+.slide.active .info-card:nth-child(2){transition-delay:.28s}
+.slide.active .info-card:nth-child(3){transition-delay:.41s}
+.slide.active .info-card:nth-child(4){transition-delay:.54s}
+.info-card .lbl{
+  text-transform:lowercase;letter-spacing:.18em;
+  font-size:.72rem;color:var(--c,var(--purple));font-weight:500;margin-bottom:10px;
+}
+.info-card h3{font-size:1.05rem;font-weight:600;color:var(--light-card-text);margin-bottom:8px;line-height:1.25}
+.info-card p{font-size:.88rem;color:var(--light-card-muted);line-height:1.6}
+
+/* ============================================================
+   SLIDE 1 — KNOWLEDGE CAFÉ TITLE
+   ============================================================ */
+#s1{justify-content:center;align-items:center;text-align:center}
+#s1 .pl-logo{
+  display:inline-flex;align-items:center;gap:14px;
+  margin-bottom:48px;font-family:var(--mono);
+  font-size:.85rem;color:var(--text-muted);letter-spacing:.2em;
+  text-transform:uppercase;
+  opacity:0;transition:opacity 1s ease .2s;
+}
+#s1.active .pl-logo{opacity:1}
+#s1 .pl-logo svg{width:42px;height:42px;display:block}
+#s1 h1{
+  font-size:clamp(4rem,10vw,9rem);font-weight:800;letter-spacing:-0.04em;
+  background:var(--pl-gradient);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  margin-bottom:18px;line-height:.95;
+  opacity:0;transform:translateY(30px);
+  transition:opacity 1s cubic-bezier(.22,1,.36,1) .4s,transform 1s cubic-bezier(.22,1,.36,1) .4s;
+}
+#s1.active h1{opacity:1;transform:translateY(0)}
+#s1 .presenters-row{
+  font-size:clamp(1.1rem,2vw,1.6rem);color:var(--text-soft);
+  margin-bottom:18px;font-weight:400;
+  opacity:0;transition:opacity .8s ease 1.1s;
+}
+#s1.active .presenters-row{opacity:1}
+#s1 .date-line{
+  font-family:var(--mono);font-size:.85rem;color:var(--text-muted);
+  letter-spacing:.18em;text-transform:uppercase;
+  opacity:0;transition:opacity .8s ease 1.5s;
+}
+#s1.active .date-line{opacity:1}
+
+/* ============================================================
+   SLIDE 2 — PRESENTERS
+   ============================================================ */
+#s2 .presenters{
+  display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:36px;max-width:1100px;
+}
+.presenter-card{
+  padding:36px 32px;border-radius:18px;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:flex-start;gap:18px;
+  opacity:0;transform:translateY(16px);
+  transition:opacity .6s ease,transform .6s ease;
+}
+.slide.active .presenter-card:nth-child(1){transition-delay:.2s}
+.slide.active .presenter-card:nth-child(2){transition-delay:.35s}
+.slide.active .presenter-card{opacity:1;transform:translateY(0)}
+.presenter-card .avatar{
+  width:96px;height:96px;border-radius:50%;
+  background:linear-gradient(135deg,var(--c1,var(--pl-blue)),var(--c2,var(--pl-purple)));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;font-weight:700;color:#fff;letter-spacing:-0.02em;
+  position:relative;overflow:hidden;flex-shrink:0;
+  box-shadow:0 6px 18px rgba(132,25,207,.25);
+}
+.presenter-card .avatar img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+}
+.presenter-card .avatar .initials{position:relative;z-index:1}
+.presenter-card .name{font-size:clamp(1.3rem,2vw,1.7rem);font-weight:600;color:var(--text)}
+.presenter-card .role{
+  text-transform:lowercase;letter-spacing:.2em;font-size:.78rem;
+  color:var(--c1,var(--purple));font-weight:500;
+}
+.presenter-card .blurb{font-size:.95rem;color:var(--text-muted);line-height:1.6}
+
+/* ============================================================
+   SLIDE 3 — AGENDA (chapter outline)
+   ============================================================ */
+#s3 .chapters{display:flex;flex-direction:column;gap:14px;margin-top:24px;max-width:1100px}
+.chapter{
+  display:flex;align-items:flex-start;gap:24px;
+  padding:18px 22px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--border);
+  opacity:0;transform:translateX(-12px);
+  transition:opacity .5s ease,transform .5s ease;
+}
+.slide.active .chapter{opacity:1;transform:translateX(0)}
+.slide.active .chapter:nth-child(1){transition-delay:.15s}
+.slide.active .chapter:nth-child(2){transition-delay:.25s}
+.slide.active .chapter:nth-child(3){transition-delay:.35s}
+.slide.active .chapter:nth-child(4){transition-delay:.45s}
+.slide.active .chapter:nth-child(5){transition-delay:.55s}
+.chapter .num{
+  font-family:var(--mono);font-size:1.3rem;font-weight:600;
+  color:var(--purple);min-width:48px;
+}
+.chapter .ch-name{font-weight:600;font-size:1.05rem;color:var(--text);margin-bottom:4px}
+.chapter .ch-body{font-size:.85rem;color:var(--text-muted)}
+
+/* ============================================================
+   SLIDE 4 — EDU-DIGITAL section opener
+   ============================================================ */
+.section-opener{background:var(--bg-soft)}
+.section-opener h1{font-size:clamp(3rem,7vw,5.5rem)}
+
+/* ============================================================
+   SLIDE 5 — WHO AM I (Joana bio)
+   ============================================================ */
+#s5 .bio-grid{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-top:32px;max-width:1300px;
+}
+.bio-card{
+  padding:24px 26px;border-radius:14px;
+  background:var(--light-card-bg);color:var(--light-card-text);
+  border:1px solid var(--light-card-border);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .55s ease,transform .55s ease;
+}
+.slide.active .bio-card:nth-child(1){transition-delay:.2s}
+.slide.active .bio-card:nth-child(2){transition-delay:.32s}
+.slide.active .bio-card:nth-child(3){transition-delay:.44s}
+.slide.active .bio-card{opacity:1;transform:translateY(0)}
+.bio-card .lbl{
+  text-transform:lowercase;letter-spacing:.18em;font-size:.72rem;
+  color:var(--c,var(--purple));font-weight:500;margin-bottom:8px;
+}
+.bio-card .ttl{font-weight:600;font-size:1rem;margin-bottom:10px;color:var(--light-card-text)}
+.bio-card .det{font-size:.85rem;color:var(--light-card-muted);line-height:1.55}
+
+/* ============================================================
+   SLIDE 7 — MISINFORMATION 3-column
+   ============================================================ */
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:32px;max-width:1300px}
+
+/* ============================================================
+   SLIDE 9 — INFLUENCER 2-column compare
+   ============================================================ */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;max-width:1200px}
+.compare-card{
+  padding:28px 30px;border-radius:14px;
+  background:var(--light-card-bg);color:var(--light-card-text);
+  border:1px solid var(--light-card-border);
+  border-top:3px solid var(--c,var(--purple));
+}
+.compare-card h3{
+  text-transform:lowercase;letter-spacing:.18em;font-size:.75rem;
+  color:var(--c,var(--purple));font-weight:500;margin-bottom:14px;
+}
+.compare-card ul{list-style:none}
+.compare-card li{
+  font-size:.95rem;color:var(--light-card-text);
+  padding:6px 0;line-height:1.4;
+}
+
+/* ============================================================
+   SLIDE 10 — 2x2 design items (dark)
+   ============================================================ */
+.dark-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px;max-width:1300px}
+.dark-item{
+  padding:22px 26px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--c,var(--purple));
+  opacity:0;transform:translateY(10px);
+  transition:opacity .5s ease,transform .5s ease;
+}
+.slide.active .dark-item{opacity:1;transform:translateY(0)}
+.slide.active .dark-item:nth-child(1){transition-delay:.2s}
+.slide.active .dark-item:nth-child(2){transition-delay:.32s}
+.slide.active .dark-item:nth-child(3){transition-delay:.44s}
+.slide.active .dark-item:nth-child(4){transition-delay:.56s}
+.slide.active .dark-item:nth-child(5){transition-delay:.68s}
+.dark-item h3{font-weight:600;font-size:1rem;color:var(--text);margin-bottom:6px;line-height:1.25}
+.dark-item p{font-size:.86rem;color:var(--text-muted);line-height:1.55}
+
+/* ============================================================
+   SLIDE 11 — 5 cost items (2-2-1 grid)
+   ============================================================ */
+.cost-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px;max-width:1300px}
+
+/* ============================================================
+   SLIDE 12 — DEMOCRACY DEBUGGER activity
+   ============================================================ */
+.optional-badge{
+  display:inline-block;font-family:var(--mono);font-size:.75rem;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--orange);background:rgba(245,158,11,.1);
+  border:1px solid rgba(245,158,11,.3);
+  padding:6px 14px;border-radius:30px;margin-bottom:20px;
+}
+.steps-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;max-width:1200px}
+.step-card{
+  padding:24px 26px;border-radius:14px;
+  background:var(--light-card-bg);color:var(--light-card-text);
+  border:1px solid var(--light-card-border);
+  border-top:3px solid var(--c,var(--purple));
+}
+.step-card .num-big{
+  font-family:var(--mono);font-size:2.2rem;font-weight:700;
+  color:var(--c,var(--purple));line-height:1;margin-bottom:14px;
+}
+.step-card h3{font-weight:600;font-size:1.05rem;color:var(--light-card-text);margin-bottom:8px;line-height:1.3}
+.step-card p{font-size:.85rem;color:var(--light-card-muted);line-height:1.55}
+
+/* ============================================================
+   SLIDE 13 — SO I BUILT SOMETHING (purple bg)
+   ============================================================ */
+.purple-bg{
+  background:linear-gradient(135deg,var(--purple) 0%,#5b21b6 100%);
+  color:#fff;align-items:flex-start;
+}
+.purple-bg h1,.purple-bg .body{color:#fff}
+.purple-bg .body{color:rgba(255,255,255,.85)}
+.purple-bg .tag-row{
+  font-family:var(--mono);font-size:.85rem;color:var(--purple-soft);
+  margin-top:18px;letter-spacing:.1em;
+}
+.purple-bg .url{
+  font-family:var(--mono);font-size:1.1rem;font-weight:500;
+  color:#fff;margin-top:24px;
+}
+
+/* ============================================================
+   SLIDE 14 — what already exists (2x2 cards)
+   ============================================================ */
+
+/* ============================================================
+   SLIDE 15 — I'M NOT A DEVELOPER (dark, teal stripe)
+   ============================================================ */
+.teal-stripe .stripe{background:linear-gradient(180deg,var(--teal),#34D399)}
+.teal-stripe .kicker{color:var(--teal)}
+#s15 h1 em{font-style:italic;color:var(--teal);font-weight:600}
+#s15 .small{
+  font-size:1rem;font-style:italic;color:var(--text-muted);margin-top:18px;
+}
+
+/* ============================================================
+   SLIDE 16 — THE PROCESS (4 steps with emoji)
+   ============================================================ */
+.process-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px;max-width:1300px}
+.process-card{
+  display:flex;gap:22px;align-items:flex-start;
+  padding:22px 26px;border-radius:14px;
+  background:var(--light-card-bg);color:var(--light-card-text);
+  border:1px solid var(--light-card-border);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .5s ease,transform .5s ease;
+}
+.slide.active .process-card{opacity:1;transform:translateY(0)}
+.slide.active .process-card:nth-child(1){transition-delay:.2s}
+.slide.active .process-card:nth-child(2){transition-delay:.32s}
+.slide.active .process-card:nth-child(3){transition-delay:.44s}
+.slide.active .process-card:nth-child(4){transition-delay:.56s}
+.process-card .icon{font-size:1.8rem;line-height:1;flex-shrink:0}
+.process-card h3{font-weight:600;font-size:1rem;color:var(--light-card-text);margin-bottom:6px;line-height:1.3}
+.process-card p{font-size:.85rem;color:var(--light-card-muted);line-height:1.55}
+
+/* ============================================================
+   SLIDE 17 — WE BUILD SYSTEMS (typographic)
+   ============================================================ */
+.bigstatement{
+  background:linear-gradient(135deg,var(--purple) 0%,#5b21b6 60%,#3b0764 100%);
+  color:#fff;
+}
+.bigstatement h1{color:#fff;font-size:clamp(2.5rem,5.5vw,5rem)}
+.bigstatement .body{color:rgba(255,255,255,.88);max-width:64ch;font-size:1.1rem;margin-top:24px}
+
+/* ============================================================
+   SLIDE 18 — JOANA'S CLOSING
+   ============================================================ */
+.cta-row{display:flex;gap:18px;margin-top:36px;flex-wrap:wrap}
+.cta{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:16px 32px;border-radius:14px;
+  font-weight:600;font-size:1rem;letter-spacing:.01em;
+  text-decoration:none;transition:transform .25s ease,box-shadow .25s ease;
+}
+.cta.purple{
+  background:var(--purple);color:#fff;
+  box-shadow:0 8px 28px rgba(124,58,237,.4);
+}
+.cta.outline{
+  background:transparent;border:1.5px solid var(--border);color:var(--text);
+}
+.cta:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(124,58,237,.5)}
+.thanks{margin-top:38px;font-style:italic;color:var(--text-muted);font-size:1rem}
+
+/* ============================================================
+   SLIDE 19 — JOÃO HAND-OFF (typewriter reveal)
+   ============================================================ */
+#s19 h1 .reveal{
+  display:inline-block;opacity:0;transform:translateY(28px);
+  transition:opacity .9s cubic-bezier(.22,1,.36,1),transform .9s cubic-bezier(.22,1,.36,1);
+}
+#s19.active h1 .reveal{opacity:1;transform:translateY(0)}
+#s19.active h1 .reveal:nth-of-type(1){transition-delay:.25s}
+#s19.active h1 .reveal:nth-of-type(2){transition-delay:.55s}
+#s19.active h1 .reveal:nth-of-type(3){transition-delay:.85s}
+#s19 .subtitle{opacity:0;transform:translateY(10px);transition:all .8s ease 1.4s}
+#s19.active .subtitle{opacity:1;transform:translateY(0)}
+#s19 .attrib{opacity:0;transition:opacity .6s ease 2s}
+#s19.active .attrib{opacity:1}
+
+/* ============================================================
+   SLIDE 20 — SIX THINGS GRID
+   ============================================================ */
+.six-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:28px 70px;margin-top:32px;max-width:1300px;
+}
+.proj{
+  display:flex;gap:20px;align-items:flex-start;
+  opacity:0;transform:translateX(-15px);
+  transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1);
+}
+.slide.active .proj{opacity:1;transform:translateX(0)}
+.slide.active .proj:nth-child(1){transition-delay:.15s}
+.slide.active .proj:nth-child(2){transition-delay:.27s}
+.slide.active .proj:nth-child(3){transition-delay:.39s}
+.slide.active .proj:nth-child(4){transition-delay:.51s}
+.slide.active .proj:nth-child(5){transition-delay:.63s}
+.slide.active .proj:nth-child(6){transition-delay:.75s}
+.proj-bar{
+  width:4px;align-self:stretch;min-height:64px;border-radius:2px;
+  box-shadow:0 0 14px currentColor;
+}
+.proj-title{font-weight:600;font-size:1.1rem;color:var(--text);margin-bottom:8px;line-height:1.2}
+.proj-desc{font-size:.92rem;color:var(--text-muted);line-height:1.55}
+
+/* ============================================================
+   SLIDE 22 — TOBIAS AGENTS
+   ============================================================ */
+.agents{display:flex;gap:16px;margin-top:32px;flex-wrap:wrap}
+.agent{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  padding:18px 24px;
+  background:var(--surface);
+  border:1px solid var(--border);border-radius:14px;
+  min-width:148px;position:relative;overflow:hidden;
+}
+.agent::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--c,var(--teal));
+}
+.agent .row{display:flex;align-items:center;gap:10px}
+.agent .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--c,var(--teal));
+  box-shadow:0 0 14px var(--c,var(--teal));
+  animation:agentPulse 1.6s ease-in-out infinite;
+}
+.agent .role{font-size:.95rem;font-weight:600;color:var(--text)}
+.agent .sub{font-size:.7rem;color:var(--text-muted);font-family:var(--mono);margin-top:2px}
+@keyframes agentPulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.45)}}
+
+/* ============================================================
+   SLIDE 24 — SSL HASH BADGES
+   ============================================================ */
+.hashes{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px;max-width:880px}
+.hash{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border-radius:999px;
+  background:rgba(245,158,11,0.06);
+  border:1px solid rgba(245,158,11,0.18);
+  font-family:var(--mono);font-size:.72rem;color:var(--orange);
+}
+.hash .check{color:var(--green);font-weight:600}
+
+/* ============================================================
+   SLIDE 26 — COUNTERS
+   ============================================================ */
+.counters{
+  display:flex;gap:60px;margin-top:32px;flex-wrap:wrap;
+}
+.stat{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.stat .num{
+  font-size:clamp(3.5rem,7vw,6rem);
+  font-weight:800;line-height:1;
+  background:linear-gradient(135deg,var(--orange) 0%,var(--pink) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-variant-numeric:tabular-nums;font-family:var(--mono);
+}
+.stat .lbl{
+  font-size:.85rem;color:var(--text-muted);
+  text-transform:lowercase;letter-spacing:.18em;
+}
+
+/* ============================================================
+   SLIDE 27 — WHAT CHANGED
+   ============================================================ */
+.changes{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px;max-width:1280px}
+.change{
+  display:flex;gap:20px;align-items:flex-start;
+  padding:22px 26px;
+  background:var(--surface);
+  border:1px solid var(--border);border-radius:14px;
+  opacity:0;transform:translateY(12px);
+  transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1);
+}
+.slide.active .change{opacity:1;transform:translateY(0)}
+.slide.active .change:nth-child(1){transition-delay:.2s}
+.slide.active .change:nth-child(2){transition-delay:.35s}
+.slide.active .change:nth-child(3){transition-delay:.5s}
+.slide.active .change:nth-child(4){transition-delay:.65s}
+.change-icon{font-size:1.9rem;line-height:1;flex-shrink:0}
+.change h3{font-size:1.05rem;color:var(--text);margin-bottom:6px;font-weight:600;line-height:1.25}
+.change p{font-size:.88rem;color:var(--text-muted);line-height:1.55}
+
+/* ============================================================
+   SLIDE 28 — DEMO INTRO
+   ============================================================ */
+.demo{
+  background:linear-gradient(135deg,#7C3AED 0%,#5b21b6 100%);
+  align-items:flex-start;justify-content:center;color:#fff;
+}
+.demo h1{color:#fff;font-size:clamp(3rem,7vw,7rem);font-weight:700}
+.demo h2{
+  color:#1F2937;font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;
+  margin-top:48px;letter-spacing:-0.01em;
+}
+.demo .demo-tag{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:.85rem;color:rgba(255,255,255,.95);
+  margin-top:22px;padding:9px 16px;
+  background:rgba(0,0,0,.32);border-radius:30px;
+  border:1px solid rgba(255,255,255,.18);
+  letter-spacing:.12em;
+}
+.demo .demo-tag .live-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 12px var(--green);
+  animation:agentPulse 1.1s ease-in-out infinite;
+}
+.demo .demo-line{
+  color:rgba(255,255,255,.75);font-style:italic;margin-top:18px;
+  font-size:clamp(1rem,1.3vw,1.2rem);
+}
+
+/* ============================================================
+   PROGRESS + UI CHROME
+   ============================================================ */
+.progress{
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:50;
+  background:var(--surface);
+}
+.progress::after{
+  content:'';position:absolute;top:0;left:0;height:100%;
+  background:linear-gradient(90deg,var(--purple),var(--pink) 70%,var(--orange));
+  width:var(--p,0%);transition:width .5s ease;
+  box-shadow:0 0 12px rgba(124,58,237,.6);
+}
+.counter{
+  position:fixed;bottom:22px;right:32px;z-index:50;
+  font-family:var(--mono);font-size:.78rem;color:var(--text-muted);
+  letter-spacing:.08em;
+}
+.counter b{color:var(--text);font-weight:500}
+.help{
+  position:fixed;bottom:22px;left:32px;z-index:50;
+  font-family:var(--mono);font-size:.65rem;color:var(--text-muted);
+  letter-spacing:.14em;text-transform:uppercase;opacity:.6;
+  display:flex;gap:10px;align-items:center;
+}
+.help kbd{
+  display:inline-flex;padding:2px 7px;border-radius:4px;
+  background:var(--surface);font-family:var(--mono);
+  font-size:.62rem;color:var(--text-muted);
+}
+.theme-toggle{
+  position:fixed;top:22px;right:50px;z-index:51;
+  display:flex;gap:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:30px;
+  padding:4px;backdrop-filter:blur(8px);
+}
+.music-toggle{
+  position:fixed;top:22px;right:140px;z-index:51;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--border);
+  cursor:pointer;color:var(--text-muted);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);transition:all .25s ease;
+  font-size:1.05rem;line-height:1;padding:0;
+}
+.music-toggle.on{
+  color:#fff;border-color:transparent;
+  background:var(--pl-gradient);
+  box-shadow:0 0 16px rgba(132,25,207,.35);
+}
+.music-toggle:hover{transform:scale(1.05)}
+.music-toggle .note{display:inline-block;transition:transform .3s ease}
+.music-toggle.on .note{animation:noteBob 1.2s ease-in-out infinite}
+@keyframes noteBob{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-2px) rotate(-8deg)}}
+.theme-toggle button{
+  background:transparent;border:none;cursor:pointer;
+  width:32px;height:32px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--text-muted);transition:all .25s ease;
+  font-size:.95rem;
+}
+.theme-toggle button.active{
+  background:var(--surface-hi);color:var(--text);
+}
+.theme-toggle button:hover{color:var(--text)}
+
+/* responsive */
+@media(max-width:900px){
+  .six-grid,.changes,.card-grid-2,.card-grid-3,.card-grid-4,
+  .three-col,.compare,.dark-grid-2,.cost-grid,.steps-3,
+  .process-grid,#s5 .bio-grid,#s2 .presenters{grid-template-columns:1fr}
+  .agents{flex-direction:column}
+  .slide{padding:6vh 6vw 8vh}
+  .dots{right:90px}
+  .theme-toggle{right:18px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important}
+}
+</style>
+</head>
+<body>
+<div class="atmos"></div>
+<div class="grain"></div>
+
+<!-- MUSIC TOGGLE -->
+<button class="music-toggle" id="music-toggle" title="Toggle music" aria-label="Toggle music"><span class="note">♪</span></button>
+
+<!-- THEME TOGGLE -->
+<div class="theme-toggle" role="group" aria-label="Theme">
+  <button id="theme-dark" class="active" title="Dark mode" aria-label="Dark mode">◐</button>
+  <button id="theme-light" title="Light mode" aria-label="Light mode">☀</button>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- ===== SLIDE 1 — KNOWLEDGE CAFÉ TITLE ===== -->
+  <section class="slide active" id="s1">
+    <div class="pl-logo">
+      <svg viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="pl-mark-grad" x1="19.08" y1="789.64" x2="973.05" y2="322.71" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#0EACDF"/>
+            <stop offset=".34" stop-color="#3778D9"/>
+            <stop offset="1" stop-color="#8419CF"/>
+          </linearGradient>
+        </defs>
+        <path fill="url(#pl-mark-grad)" d="M541.52,790.6c-141.84,0-255.98-115.25-255.98-255.98s115.25-255.98,255.98-255.98c141.84-1.11,257.09,113.03,257.09,254.88s-115.25,257.09-257.09,257.09M172.5,906.95c95.3,94.19,224.96,151.82,370.13,151.82,290.34,0,525.27-234.93,525.27-525.27C1066.79,243.17,831.86,8.24,541.52,8.24c-240.47,0-444.37,162.9-506.43,383.42-39.89,142.95-17.73,516.4-17.73,678.19l155.14-162.9Z"/>
+      </svg>
+      <span>Product League</span>
+    </div>
+    <h1>Knowledge<br>Café</h1>
+    <p class="presenters-row">Joana Contente &nbsp;·&nbsp; João Pedro Sousa</p>
+    <p class="date-line">May 2026</p>
+  </section>
+
+  <!-- ===== SLIDE 2 — PRESENTERS ===== -->
+  <section class="slide" id="s2">
+    <div class="stripe"></div>
+    <p class="kicker">presenters</p>
+    <h1 class="smaller">two people, two paths.</h1>
+    <div class="presenters">
+      <div class="presenter-card" style="--c1:#A41D8C;--c2:#8419CF">
+        <div class="avatar"><img src="joana.jpg" alt="" onerror="this.remove()"></div>
+        <div>
+          <div class="role">QA</div>
+          <div class="name">Joana Contente</div>
+        </div>
+        <div class="blurb">QA at Product League. 11 years of theatre. Building edu-digital.pt &mdash; digital literacy that starts before the screen.</div>
+      </div>
+      <div class="presenter-card" style="--c1:#0EACDF;--c2:#3778D9">
+        <div class="avatar"><img src="joao.jpg" alt="" onerror="this.remove()"></div>
+        <div>
+          <div class="role">Developer</div>
+          <div class="name">João Pedro Sousa</div>
+        </div>
+        <div class="blurb">OutSystems developer at Product League. Just starting to use AI tooling &mdash; and curious where it leads.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 3 — AGENDA / CHAPTERS ===== -->
+  <section class="slide" id="s3">
+    <div class="stripe"></div>
+    <p class="kicker">agenda</p>
+    <h1 class="smaller">what we&rsquo;ll cover.</h1>
+    <div class="chapters">
+      <div class="chapter"><span class="num">01</span><div><div class="ch-name">Chapter I &mdash; The problem</div><div class="ch-body">What growing up online actually looks like</div></div></div>
+      <div class="chapter"><span class="num">02</span><div><div class="ch-name">Chapter II &mdash; Joana&rsquo;s path</div><div class="ch-body">Digital literacy, no-code building, edu-digital.pt</div></div></div>
+      <div class="chapter"><span class="num">03</span><div><div class="ch-name">Chapter III &mdash; Jo&atilde;o&rsquo;s path</div><div class="ch-body">AI-first approach as a daily use tool</div></div></div>
+      <div class="chapter"><span class="num">04</span><div><div class="ch-name">Chapter IV &mdash; Your turn</div><div class="ch-body">What are you going to do with what you know?</div></div></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 4 — EDU-DIGITAL.PT SECTION OPENER ===== -->
+  <section class="slide section-opener" id="s4">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <h1>edu-digital.pt</h1>
+    <p class="subtitle">digital literacy that starts before the screen</p>
+    <p class="attrib">Joana Contente &nbsp;&nbsp; Product League</p>
+  </section>
+
+  <!-- ===== SLIDE 5 — WHO AM I ===== -->
+  <section class="slide" id="s5">
+    <div class="stripe"></div>
+    <p class="kicker">before we start</p>
+    <h1>who am I, exactly?</h1>
+    <div class="bio-grid">
+      <div class="bio-card" style="--c:#7C3AED"><div class="lbl">QA @ Product League</div><div class="ttl">OutSystems ODC</div><div class="det">AI agent testing</div></div>
+      <div class="bio-card" style="--c:#F59E0B"><div class="lbl">11 years of theatre</div><div class="ttl">Dramatic expression</div><div class="det">Pedagogy</div></div>
+      <div class="bio-card" style="--c:#0D9488"><div class="lbl">edu-digital.pt</div><div class="ttl">Digital literacy</div><div class="det">Offline Club</div></div>
+    </div>
+    <p class="caption-bottom">two worlds, one purpose: giving people the tools to create and change things.</p>
+  </section>
+
+  <!-- ===== SLIDE 6 — THE PROBLEM ===== -->
+  <section class="slide" id="s6">
+    <div class="stripe"></div>
+    <p class="kicker">the problem</p>
+    <h1>kids grow up online.<br>nobody teaches them how to read what they see.</h1>
+    <p class="body">Young people today spend hours online with very little preparation for what they encounter. Reading a manipulated image, spotting a misleading headline, tracing a source back to its origin: these are skills that schools and families rarely teach.</p>
+  </section>
+
+  <!-- ===== SLIDE 7 — MISINFORMATION ===== -->
+  <section class="slide" id="s7">
+    <div class="stripe"></div>
+    <p class="kicker">misinformation</p>
+    <h1 class="smaller">three blind spots.</h1>
+    <div class="three-col">
+      <div class="info-card" style="--c:#7C3AED">
+        <div class="lbl">wider than politics</div>
+        <h3>Health, identity, science.</h3>
+        <p>False content looks exactly like real content, and younger users have very few reference points for telling them apart.</p>
+      </div>
+      <div class="info-card" style="--c:#F59E0B">
+        <div class="lbl">the real gap is critical thinking</div>
+        <h3>Question. Verify. Pause.</h3>
+        <p>Habits like questioning, verifying, and pausing before sharing take practice and guidance to build.</p>
+      </div>
+      <div class="info-card" style="--c:#0D9488">
+        <div class="lbl">scroll speed leaves no room to think</div>
+        <h3>Designed to keep moving.</h3>
+        <p>Platform design was built to keep people moving, not to help them slow down and reflect.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 8 — ALGORITHMIC BUBBLES ===== -->
+  <section class="slide" id="s8">
+    <div class="stripe"></div>
+    <p class="kicker">algorithmic bubbles</p>
+    <h1>Algorithms do not show the world.<br>They show a version of the world calibrated to hold your attention.</h1>
+    <p class="body">People who grow up inside a bubble often have no idea the bubble exists. This shapes how young people understand politics, society, and each other.</p>
+  </section>
+
+  <!-- ===== SLIDE 9 — INFLUENCER CULTURE ===== -->
+  <section class="slide" id="s9">
+    <div class="stripe"></div>
+    <p class="kicker">influencer culture</p>
+    <h1 class="smaller">60 seconds. zero context.</h1>
+    <div class="compare">
+      <div class="compare-card" style="--c:#7C3AED">
+        <h3>what they see</h3>
+        <ul>
+          <li>Impossible lifestyles.</li>
+          <li>Opinions presented as facts.</li>
+          <li>Products sold as solutions.</li>
+        </ul>
+      </div>
+      <div class="compare-card" style="--c:#F59E0B">
+        <h3>what is missing</h3>
+        <ul>
+          <li>Context.</li>
+          <li>Critical thinking.</li>
+          <li>Awareness of what is behind a video.</li>
+          <li>The ability to say: this is not real.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="caption-bottom">60 seconds of video. Zero context. Maximum impact.</p>
+  </section>
+
+  <!-- ===== SLIDE 10 — THIS WAS DESIGN ===== -->
+  <section class="slide" id="s10">
+    <div class="stripe"></div>
+    <p class="kicker">by design</p>
+    <h1 class="smaller">this was not an accident.<br>it was design.</h1>
+    <div class="dark-grid-2">
+      <div class="dark-item" style="--c:#7C3AED"><h3>Systems built to capture attention, not serve it</h3><p>Across games, apps, streaming, notifications: the goal is time spent, not time well spent.</p></div>
+      <div class="dark-item" style="--c:#F59E0B"><h3>Engagement over wellbeing</h3><p>Tech products are measured by clicks, retention and time on screen. User wellbeing rarely enters the model.</p></div>
+      <div class="dark-item" style="--c:#0D9488"><h3>Frictionless by design</h3><p>Friction exists for a reason: to pause, to think, to stop. It was deliberately removed from almost every product young people use.</p></div>
+      <div class="dark-item" style="--c:#A78BFA"><h3>Age-agnostic products in an age-specific world</h3><p>Most digital products were built for adults and adopted by children, or built for everyone while ignoring that everyone includes a 10-year-old.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 11 — THE COST IS BIGGER (5 items) ===== -->
+  <section class="slide" id="s11">
+    <div class="stripe"></div>
+    <p class="kicker">what this design does to society</p>
+    <h1 class="smaller">the cost is bigger<br>than we talk about.</h1>
+    <div class="cost-grid">
+      <div class="dark-item" style="--c:#7C3AED"><h3>political polarisation</h3><p>Algorithms reward outrage. People are pushed toward the extreme of their own side, with no exposure to anything outside it.</p></div>
+      <div class="dark-item" style="--c:#F59E0B"><h3>shrinking attention spans</h3><p>Growing difficulty reading long texts, sustaining focus, tolerating boredom. Measurable in young adults who grew up with smartphones.</p></div>
+      <div class="dark-item" style="--c:#0D9488"><h3>collapse of trust in institutions</h3><p>Repeated misinformation creates doubt in media, science and government. The information ecosystem makes everything feel unreliable.</p></div>
+      <div class="dark-item" style="--c:#A78BFA"><h3>coordinated electoral manipulation</h3><p>Deliberate campaigns that exploit algorithmic amplification to spread false narratives at critical moments in democratic processes.</p></div>
+      <div class="dark-item" style="--c:#EC4899"><h3>adolescent mental health crisis</h3><p>Documented correlation between heavy social media use and anxiety, depression and body image disorders, especially in girls aged 11 to 16.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 12 — DEMOCRACY DEBUGGER ===== -->
+  <section class="slide" id="s12">
+    <div class="stripe"></div>
+    <span class="optional-badge">Optional Activity</span>
+    <h1 class="smaller">democracy debugger.</h1>
+    <p class="body">A tool I built in Lovable to practise critical thinking around political and news content online.</p>
+    <div class="steps-3">
+      <div class="step-card" style="--c:#7C3AED"><div class="num-big">01</div><h3>Read a piece of content</h3><p>news story, post, headline.</p></div>
+      <div class="step-card" style="--c:#F59E0B"><div class="num-big">02</div><h3>Spot the patterns</h3><p>emotional language, sources, missing context.</p></div>
+      <div class="step-card" style="--c:#0D9488"><div class="num-big">03</div><h3>Assess credibility</h3><p>before you believe it or share it.</p></div>
+    </div>
+    <p class="caption-bottom">we split into groups and try it together.</p>
+  </section>
+
+  <!-- ===== SLIDE 13 — SO I BUILT SOMETHING ===== -->
+  <section class="slide purple-bg" id="s13">
+    <h1>so I built something<br>about it.</h1>
+    <p class="url">edu-digital.pt</p>
+    <p class="tag-row">digital literacy &nbsp;·&nbsp; critical thinking &nbsp;·&nbsp; humane technology</p>
+  </section>
+
+  <!-- ===== SLIDE 14 — WHAT ALREADY EXISTS ===== -->
+  <section class="slide" id="s14">
+    <div class="stripe"></div>
+    <p class="kicker">what already exists</p>
+    <h1 class="smaller">four channels, one mission.</h1>
+    <div class="card-grid-4">
+      <div class="info-card" style="--c:#7C3AED"><div class="lbl">blog and website</div><h3>edu-digital.pt</h3><p>Content for parents, teachers and young people. Built in Lovable.</p></div>
+      <div class="info-card" style="--c:#F59E0B"><div class="lbl">Offline Club</div><h3>Real-world play</h3><p>Outdoor, screen-free play experiences for children. Real events.</p></div>
+      <div class="info-card" style="--c:#0D9488"><div class="lbl">school sessions</div><h3>Workshops</h3><p>Local school clusters. Already running and growing.</p></div>
+      <div class="info-card" style="--c:#A78BFA"><div class="lbl">@ia_joanaa</div><h3>Instagram series</h3><p>Digital literacy. No influencer aesthetics.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 15 — I'M NOT A DEVELOPER ===== -->
+  <section class="slide teal-stripe" id="s15">
+    <div class="stripe"></div>
+    <p class="kicker teal">how did I build all of this?</p>
+    <h1>I&rsquo;m not a developer.<br><em>I used Lovable.</em></h1>
+    <p class="small">(yes, really.)</p>
+    <p class="body" style="margin-top:24px">Lovable turns plain language into working code. You describe what you want. It builds it.</p>
+  </section>
+
+  <!-- ===== SLIDE 16 — THE PROCESS ===== -->
+  <section class="slide" id="s16">
+    <div class="stripe"></div>
+    <p class="kicker teal">the process, honestly</p>
+    <h1 class="smaller">four steps from prompt to live.</h1>
+    <div class="process-grid">
+      <div class="process-card"><div class="icon">💬</div><div><h3>I described what I wanted</h3><p>In plain language, no technical background needed.</p></div></div>
+      <div class="process-card"><div class="icon">⚡</div><div><h3>Lovable generated the site</h3><p>React, Tailwind, hosting all included.</p></div></div>
+      <div class="process-card"><div class="icon">🔁</div><div><h3>I iterated through conversation</h3><p>Like working with a developer, but at any hour.</p></div></div>
+      <div class="process-card"><div class="icon">🚀</div><div><h3>It went live</h3><p>edu-digital.pt · democracy debugger · and more.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 17 — WE BUILD SYSTEMS ===== -->
+  <section class="slide bigstatement" id="s17">
+    <h1>we build systems.<br>that puts us in a different position.</h1>
+    <p class="body">We work in tech. That means we understand how these systems work better than most people do. That understanding carries its own kind of responsibility. We also have the tools to do something with that.</p>
+  </section>
+
+  <!-- ===== SLIDE 19 — JOÃO HAND-OFF ===== -->
+  <section class="slide section-opener" id="s19">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <h1><span class="reveal">I do</span> <span class="reveal">write</span> <span class="reveal">code.</span></h1>
+    <p class="subtitle">AI wants to change what that means too.</p>
+    <p class="attrib">João Pedro Sousa &nbsp;&nbsp; Product League</p>
+  </section>
+
+  <!-- ===== SLIDE 20 — SIX THINGS I BUILT ===== -->
+  <section class="slide" id="s20">
+    <div class="stripe"></div>
+    <p class="kicker">six things I built</p>
+    <h1 class="smaller">I shipped more<br>than I should have been able to.</h1>
+    <div class="six-grid">
+      <div class="proj"><div class="proj-bar" style="background:var(--purple);color:var(--purple)"></div><div><div class="proj-title">Navi</div><div class="proj-desc">An AI market analyst. One Gemini agent, six tools, BUY/HOLD/SELL signals in my inbox every morning.</div></div></div>
+      <div class="proj"><div class="proj-bar" style="background:var(--orange);color:var(--orange)"></div><div><div class="proj-title">OML_XML</div><div class="proj-desc">Reverse-engineering OutSystems binaries. Hours of manual work compressed to two seconds.</div></div></div>
+      <div class="proj"><div class="proj-bar" style="background:var(--purple-light);color:var(--purple-light)"></div><div><div class="proj-title">Tobias</div><div class="proj-desc">Four AI agents running an NBA desk on a schedule. Multi-model, self-improving, and runs while I sleep.</div></div></div>
+      <div class="proj"><div class="proj-bar" style="background:var(--orange);color:var(--orange)"></div><div><div class="proj-title">SSL pinning</div><div class="proj-desc">The OutSystems mobile cert lockdown. Eight Amazon root CAs pinned, MITM blocked end-to-end.</div></div></div>
+      <div class="proj"><div class="proj-bar" style="background:var(--teal);color:var(--teal)"></div><div><div class="proj-title">sallanddoc</div><div class="proj-desc">A custom Claude skill that documents an entire OutSystems app. Three Confluence pages shipped.</div></div></div>
+      <div class="proj"><div class="proj-bar" style="background:var(--pink);color:var(--pink)"></div><div><div class="proj-title">SallandFactoryAnalysis</div><div class="proj-desc">Audit of 50 ODC assets and 545 Application Objects. Compliance-grade inventory.</div></div></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 21 — NAVI ===== -->
+  <section class="slide" id="s21">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <p class="kicker">project I</p>
+    <h1>Navi.</h1>
+    <p class="subtitle">my personal market analyst.</p>
+    <p class="body">A Flask app with a Gemini 3.1 agent that pulls live prices, searches news, and returns BUY/HOLD/SELL with reasoning. It emails me at 7am. It scores risk. It logs every decision. The kind of tool that used to require a team.</p>
+  </section>
+
+  <!-- ===== SLIDE 22 — TOBIAS ===== -->
+  <section class="slide" id="s22">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <p class="kicker">project II</p>
+    <h1>Tobias.</h1>
+    <p class="subtitle">four AI agents, one self-running desk.</p>
+    <p class="body">An Analyst rewrites the strategy every morning. A Scout researches the slate. A Commit agent acts 75 minutes before tip-off. A Settler reconciles overnight. Different models, different roles, one shared playbook the agents edit themselves.</p>
+    <div class="agents">
+      <div class="agent" style="--c:#0D9488"><div class="row"><span class="dot"></span><span class="role">Analyst</span></div><span class="sub">10:00 UTC · daily</span></div>
+      <div class="agent" style="--c:#F59E0B"><div class="row"><span class="dot"></span><span class="role">Scout</span></div><span class="sub">13:00 UTC · daily</span></div>
+      <div class="agent" style="--c:#A78BFA"><div class="row"><span class="dot"></span><span class="role">Commit</span></div><span class="sub">T-75min · per game</span></div>
+      <div class="agent" style="--c:#EC4899"><div class="row"><span class="dot"></span><span class="role">Settler</span></div><span class="sub">08:00 UTC · daily</span></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 23 — OML_XML ===== -->
+  <section class="slide" id="s23">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <p class="kicker">project III</p>
+    <h1>OML_XML.</h1>
+    <p class="subtitle">the boring win. The one I use every week.</p>
+    <p class="body">OutSystems modules ship as opaque .oml binaries. Reading them used to mean hex editors and guesswork. With AI I built a tool that converts any module into clean XML and a Markdown report in seconds. Unglamorous. Indispensable.</p>
+  </section>
+
+  <!-- ===== SLIDE 24 — SSL PINNING ===== -->
+  <section class="slide" id="s24">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <p class="kicker">project IV</p>
+    <h1>SSL pinning.</h1>
+    <p class="subtitle">the mobile cert lockdown.</p>
+    <p class="body">Pinned all eight Amazon Trust Services root CAs in the OutSystems mobile app for <code style="font-family:var(--mono);color:var(--orange);font-size:.95em">salland-dev.outsystems.app</code>. A Node script re-checks live cert hashes against the pinned set. Four-stage test suite: baseline, tampered hashes, MITM via mitmproxy, cert rotation. All passed. The mitmproxy test is the proof &mdash; the app refused to talk to the attacker.</p>
+    <div class="hashes">
+      <span class="hash"><span class="check">✓</span>sha256/++MBgDH5...</span>
+      <span class="hash"><span class="check">✓</span>sha256/f0KW/Ftq...</span>
+      <span class="hash"><span class="check">✓</span>sha256/NqvDJlas...</span>
+      <span class="hash"><span class="check">✓</span>sha256/9+ze1cZg...</span>
+      <span class="hash"><span class="check">✓</span>sha256/KwccWaCg...</span>
+      <span class="hash"><span class="check">✓</span>sha256/jZNVWOaj...</span>
+      <span class="hash"><span class="check">✓</span>sha256/lWWQdyVG...</span>
+      <span class="hash"><span class="check">✓</span>sha256/eY/hCVfo...</span>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 25 — SALLANDDOC ===== -->
+  <section class="slide" id="s25">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <p class="kicker">project V</p>
+    <h1>sallanddoc.</h1>
+    <p class="subtitle">a skill that documents an entire OutSystems app for me.</p>
+    <p class="body">I packaged everything I learned about Mijn Salland &mdash; ODC architecture, the wrapper pattern, OHI REST paths, Confluence rules, JQL ticket search &mdash; into a custom Claude skill. Every new feature doc now starts with the skill loaded. Three canonical pages already live on the SMO Confluence space. The agent searches Jira, drafts the page, and publishes it. I just provide screenshots.</p>
+  </section>
+
+  <!-- ===== SLIDE 26 — SALLAND FACTORY ANALYSIS ===== -->
+  <section class="slide" id="s26">
+    <div class="stripe"></div>
+    <div class="dots"><i></i><i></i><i></i></div>
+    <p class="kicker">project VI</p>
+    <h1>SallandFactoryAnalysis.</h1>
+    <p class="subtitle">the audit I would never have finished by hand.</p>
+    <p class="body">The Salland ODC factory has fifty assets and 545 Application Objects &mdash; over our subscription limit. I had AI inventory every asset, classify each by AO tier, and produce a static-entity analysis for every major module. The path to compliance is now visible.</p>
+    <div class="counters">
+      <div class="stat"><div class="num" data-to="50">0</div><div class="lbl">assets</div></div>
+      <div class="stat"><div class="num" data-to="545">0</div><div class="lbl">application objects</div></div>
+      <div class="stat"><div class="num" data-to="24">0</div><div class="lbl">reference docs</div></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 27 — WHAT CHANGED ===== -->
+  <section class="slide" id="s27">
+    <div class="stripe"></div>
+    <p class="kicker">what changed, honestly</p>
+    <h1 style="font-size:clamp(2rem,5vw,4rem)">what changed, honestly.</h1>
+    <div class="changes">
+      <div class="change"><div class="change-icon">🎯</div><div><h3>ambition went up</h3><p>things I would have dismissed as too much work are now Tuesday.</p></div></div>
+      <div class="change"><div class="change-icon">📚</div><div><h3>the learning loop collapsed</h3><p>I learn faster because the tutor is patient, on-demand, and embedded in the work.</p></div></div>
+      <div class="change"><div class="change-icon">🗣️</div><div><h3>code became conversation</h3><p>less typing, more thinking. The keyboard stopped being the bottleneck.</p></div></div>
+      <div class="change"><div class="change-icon">🤝</div><div><h3>I am not alone at the keyboard</h3><p>the room got bigger. The work got bolder.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ===== SLIDE 28 — DEMO INTRO ===== -->
+  <section class="slide demo" id="s28">
+    <h1>and now,<br>live.</h1>
+    <h2>Claude Code &nbsp;+&nbsp; Navi</h2>
+    <div class="demo-tag"><span class="live-dot"></span>READY TO SHIP</div>
+    <p class="demo-line">let&rsquo;s have some fun :D</p>
+  </section>
+
+  <!-- ===== SLIDE — META: THESE SLIDES ARE ALSO AI (comic relief, sets up close) ===== -->
+  <section class="slide" id="s-meta">
+    <div class="stripe"></div>
+    <p class="kicker">ok, fine, the truth &nbsp;👋</p>
+    <h1 class="smaller">these slides? also AI.</h1>
+    <p class="subtitle">yes, this one too.</p>
+    <p class="body">HTML, CSS, layouts, animations, even this very slide &mdash; generated by AI. The presentation about AI is, of course, I think they call that &ldquo;practicing what you preach.&rdquo; Or maybe &ldquo;getting away with it.&rdquo;</p>
+  </section>
+
+  <!-- ===== SLIDE 29 — SHARED CLOSING (merged from former slide 18) ===== -->
+  <section class="slide" id="s29">
+    <div class="stripe"></div>
+    <h1>what are you going to do<br>with what you know?</h1>
+    <p class="body">You do not have to start a project &mdash; share something, ask a question, point someone in a better direction. Joana built without code. Jo&atilde;o built more code than he could write alone. Both started with one prompt. The tools are here.</p>
+    <div class="cta-row">
+      <a class="cta purple" href="https://edu-digital.pt" target="_blank" rel="noopener">edu-digital.pt</a>
+      <a class="cta outline" href="https://instagram.com/ia_joanaa" target="_blank" rel="noopener">@ia_joanaa · instagram</a>
+      <a class="cta outline" href="https://github.com/joaopgms" target="_blank" rel="noopener">@joaopgms · github</a>
+    </div>
+    <p class="thanks">thank you.</p>
+  </section>
+
+</div>
+
+<div class="progress" aria-hidden="true"></div>
+<div class="counter"><b id="cur">1</b> / <span id="tot">29</span></div>
+<div class="help">
+  <kbd>←</kbd><kbd>→</kbd> NAVIGATE · <kbd>F</kbd> FULLSCREEN · <kbd>T</kbd> THEME · <kbd>M</kbd> MUSIC
+</div>
+
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const tot = slides.length;
+  document.getElementById('tot').textContent = tot;
+  let cur = 0;
+  const animated = new Set();
+
+  function go(i){
+    i = Math.max(0, Math.min(tot - 1, i));
+    if (i === cur && slides[i].classList.contains('active')) return;
+    slides.forEach((s, idx) => {
+      s.classList.remove('active','prev');
+      if (idx === i) s.classList.add('active');
+      else if (idx < i) s.classList.add('prev');
+    });
+    cur = i;
+    document.getElementById('cur').textContent = i + 1;
+    document.querySelector('.progress').style.setProperty('--p', ((i + 1) / tot * 100) + '%');
+    if (slides[i].id === 's26' && !animated.has('s26')) {
+      animated.add('s26');
+      animateCounters();
+    }
+  }
+  function next(){ go(cur + 1); }
+  function prev(){ go(cur - 1); }
+
+  // ─── THEME ───
+  const root = document.documentElement;
+  const btnDark = document.getElementById('theme-dark');
+  const btnLight = document.getElementById('theme-light');
+  function setTheme(t){
+    root.setAttribute('data-theme', t);
+    btnDark.classList.toggle('active', t === 'dark');
+    btnLight.classList.toggle('active', t === 'light');
+    try { localStorage.setItem('kc-theme', t); } catch(e){}
+  }
+  btnDark.addEventListener('click', e => { e.stopPropagation(); setTheme('dark'); });
+  btnLight.addEventListener('click', e => { e.stopPropagation(); setTheme('light'); });
+  try {
+    const saved = localStorage.getItem('kc-theme');
+    if (saved === 'light' || saved === 'dark') setTheme(saved);
+  } catch(e){}
+
+  // ─── MUSIC (chiptune via Web Audio) ───
+  let audioCtx = null, masterGain = null, musicOn = false, loopTimer = null;
+  const musicBtn = document.getElementById('music-toggle');
+  const N = { // note frequencies
+    C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196.00,A3:220.00,B3:246.94,
+    C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,
+    C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.00,B5:987.77,C6:1046.50
+  };
+  function ensureAudio(){
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.045;
+      masterGain.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function note(freq, start, dur, type='square', vol=0.4){
+    const osc = audioCtx.createOscillator();
+    const env = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    env.gain.setValueAtTime(0, start);
+    env.gain.linearRampToValueAtTime(vol, start + 0.012);
+    env.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    osc.connect(env).connect(masterGain);
+    osc.start(start);
+    osc.stop(start + dur + 0.02);
+  }
+  // 8-bar arpeggio loop in C-Am-F-G, repeated with octave-up variation
+  const PATTERNS = [
+    // [melody pairs: freq, steps] — each step = 0.16s
+    [[N.C5,1],[N.E5,1],[N.G5,1],[N.C6,1],[N.G5,1],[N.E5,1],[N.G5,2],
+     [N.A4,1],[N.C5,1],[N.E5,1],[N.A5,1],[N.E5,1],[N.C5,1],[N.E5,2],
+     [N.F4,1],[N.A4,1],[N.C5,1],[N.F5,1],[N.C5,1],[N.A4,1],[N.C5,2],
+     [N.G4,1],[N.B4,1],[N.D5,1],[N.G5,1],[N.D5,1],[N.B4,1],[N.D5,2]],
+    [[N.E5,1],[N.G5,1],[N.C6,1],[N.E5,1],[N.G5,1],[N.C6,1],[N.G5,2],
+     [N.C5,1],[N.E5,1],[N.A5,1],[N.C5,1],[N.E5,1],[N.A5,1],[N.E5,2],
+     [N.A4,1],[N.C5,1],[N.F5,1],[N.A4,1],[N.C5,1],[N.F5,1],[N.C5,2],
+     [N.B4,1],[N.D5,1],[N.G5,1],[N.B4,1],[N.D5,1],[N.G5,1],[N.D5,2]]
+  ];
+  const BASS = [[N.C3,4],[N.C3,4],[N.A3,4],[N.A3,4],[N.F3,4],[N.F3,4],[N.G3,4],[N.G3,4]];
+  let patternIdx = 0;
+  function playSting(){
+    if (!musicOn || !audioCtx) return;
+    const sd = 0.155;
+    const cycleSteps = 32;
+    const cycleDur = cycleSteps * sd; // ~5 seconds per cycle
+    // play TWO cycles back-to-back for a ~10-second sting, using both PATTERNS
+    for (let cycle = 0; cycle < 2; cycle++) {
+      const t = audioCtx.currentTime + 0.05 + cycle * cycleDur;
+      const melody = PATTERNS[patternIdx % PATTERNS.length];
+      patternIdx++;
+      let idx = 0;
+      melody.forEach(([f, len]) => { if (f) note(f, t + idx * sd, len * sd * 0.85, 'square', 0.22); idx += len; });
+      idx = 0;
+      BASS.forEach(([f, len]) => { if (f) note(f, t + idx * sd, len * sd * 0.90, 'triangle', 0.34); idx += len; });
+      // subtle hi-hat tick on off-beats
+      for (let i = 0; i < 32; i += 2) {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.value = 8000 + Math.random() * 2000;
+        const bp = audioCtx.createBiquadFilter();
+        bp.type = 'highpass'; bp.frequency.value = 6000;
+        const tt = t + i * sd;
+        g.gain.setValueAtTime(0, tt);
+        g.gain.linearRampToValueAtTime(0.06, tt + 0.002);
+        g.gain.exponentialRampToValueAtTime(0.001, tt + 0.04);
+        osc.connect(bp).connect(g).connect(masterGain);
+        osc.start(tt); osc.stop(tt + 0.05);
+      }
+    }
+  }
+  function startMusic(){
+    ensureAudio();
+    if (musicOn) return;
+    musicOn = true;
+    musicBtn.classList.add('on');
+    // reset master gain in case a prior stop left it faded
+    if (masterGain) {
+      const t = audioCtx.currentTime;
+      masterGain.gain.cancelScheduledValues(t);
+      masterGain.gain.setValueAtTime(0.045, t);
+    }
+    playSting();
+    // auto-stop after the sting completes (~10s)
+    loopTimer = setTimeout(stopMusic, 10000);
+  }
+  function stopMusic(){
+    if (!musicOn) return;
+    musicOn = false;
+    musicBtn.classList.remove('on');
+    // gentle fade-out to avoid clicks
+    if (audioCtx && masterGain) {
+      const t = audioCtx.currentTime;
+      masterGain.gain.cancelScheduledValues(t);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, t);
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    }
+    if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
+  }
+  musicBtn.addEventListener('click', e => { e.stopPropagation(); musicOn ? stopMusic() : startMusic(); });
+
+  // ─── KEYBOARD ───
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft','PageUp','Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(tot - 1);
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        document.documentElement.requestFullscreen?.();
+        go(0); // restart from slide 1 when entering fullscreen
+      }
+    }
+    else if (e.key === 't' || e.key === 'T') {
+      setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+    else if (e.key === 'm' || e.key === 'M') {
+      musicOn ? stopMusic() : startMusic();
+    }
+  });
+
+  // when entering fullscreen: reset to slide 1 AND play the 5-second sting
+  document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) {
+      go(0);
+      startMusic();
+    } else {
+      stopMusic();
+    }
+  });
+
+  // ─── CLICK NAVIGATION ───
+  document.addEventListener('click', e => {
+    if (e.target.closest('a, button, .cta, .theme-toggle, .music-toggle')) return;
+    if (e.clientX > window.innerWidth / 2) next();
+    else prev();
+  });
+
+  // ─── TOUCH SWIPE ───
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.changedTouches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) { dx < 0 ? next() : prev(); }
+  }, {passive:true});
+
+  function animateCounters(){
+    document.querySelectorAll('#s26 .stat .num').forEach(el => {
+      const target = parseInt(el.dataset.to, 10);
+      const dur = 1400;
+      const start = performance.now();
+      function tick(t){
+        const p = Math.min(1, (t - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(target * eased);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  document.querySelector('.progress').style.setProperty('--p', (1 / tot * 100) + '%');
+})();
+</script>
+</body>
+</html>
